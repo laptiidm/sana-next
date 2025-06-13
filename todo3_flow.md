@@ -143,6 +143,117 @@ TaskSchema          // агрегує Query, Mutation і типи в єдину 
 
 ---
 
+Ось повністю готовий файл `GraphQLController.cs`, з урахуванням твоєї структури (`TaskQuery`, `TaskMutation`, `TaskType`, `TaskInputType`, `TaskSchema`) та залежностей.
+
+---
+
+### 📄 `Controllers/GraphQLController.cs`
+
+> Створи папку `Controllers`, якщо її ще нема, і додай цей файл:
+
+```csharp
+using GraphQL;
+using GraphQL.Types;
+using Microsoft.AspNetCore.Mvc;
+using Todo_List_3.GraphQL;
+
+namespace Todo_List_3.Controllers
+{
+    [Route("graphql")]
+    [ApiController]
+    public class GraphQLController : ControllerBase
+    {
+        private readonly ISchema _schema;
+        private readonly IDocumentExecuter _executer;
+
+        public GraphQLController(ISchema schema, IDocumentExecuter executer)
+        {
+            _schema = schema;
+            _executer = executer;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] GraphQLQuery query)
+        {
+            if (query == null || string.IsNullOrEmpty(query.Query))
+                return BadRequest("GraphQL query is missing.");
+
+            var result = await _executer.ExecuteAsync(options =>
+            {
+                options.Schema = _schema;
+                options.Query = query.Query;
+                options.OperationName = query.OperationName;
+                options.Inputs = query.Variables?.ToInputs();
+                options.RequestServices = HttpContext.RequestServices;
+                options.ThrowOnUnhandledException = true;
+            });
+
+            if (result.Errors?.Count > 0)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+    }
+}
+```
+
+---
+
+### 📄 `GraphQL/GraphQLQuery.cs`
+
+> Додай цей новий клас у папку `GraphQL`:
+
+```csharp
+using System.Collections.Generic;
+
+namespace Todo_List_3.GraphQL
+{
+    public class GraphQLQuery
+    {
+        public string? Query { get; set; }
+        public string? OperationName { get; set; }
+        public Dictionary<string, object>? Variables { get; set; }
+    }
+}
+```
+
+---
+
+### 🔧 Додай до `Program.cs` такі реєстрації
+
+Перевір, що в тебе **є або додай**:
+
+```csharp
+builder.Services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
+builder.Services.AddSingleton<IGraphQLTextSerializer, GraphQL.SystemTextJson.DocumentWriter>();
+
+// ці вже мають бути
+builder.Services.AddSingleton<TaskType>();
+builder.Services.AddSingleton<TaskInputType>();
+builder.Services.AddScoped<TaskQuery>();
+builder.Services.AddScoped<TaskMutation>();
+builder.Services.AddScoped<ISchema, TaskSchema>();
+```
+
+---
+
+### ✅ Тест
+
+У Postman або Insomnia:
+
+* **POST** на `https://localhost:{порт}/graphql`
+* JSON:
+
+```json
+{
+  "query": "{ tasks { id title isCompleted } }"
+}
+```
+
+---
+
+🔚 Якщо потрібно — можу також згенерувати `launchSettings.json` або допомогти додати Swagger для зручності виклику.
+
 
 
 
