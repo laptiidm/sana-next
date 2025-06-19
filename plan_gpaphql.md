@@ -12,7 +12,7 @@
 
 * Клієнт надсилає POST-запит з GraphQL-запитом у форматі JSON ([ApiController] - очікує JSON як вхідний формат за замовчуванням, хоча не тільки це визначає вхідний формат)
 * Формат тіла запиту: поля `query`, `variables`, `operationName` (defined in GraphQLQuery.cs)
-* Тип сховища передається не у запиті, а у заголовку HTTP `X-Storage-Type`
+* Тип сховища передається не у запиті, а у заголовку HTTP `X-Storage-Type` (HttpContext.Request.Headers["X-Storage-Type"].FirstOrDefault() ... HttpContext as a field from ControllerBase)
 
 ### 3. Обробка запиту в GraphQLController
 
@@ -22,8 +22,9 @@
 
 ### 4. Схема та резолвери
 
-* Визначення схеми GraphQL (`TaskSchema`), що містить Query і Mutation
-* Резолвери використовують `IStorageSelectionService`, щоб вибрати правильне сховище (XML чи база даних) на основі `X-Storage-Type`
+* Визначення схеми GraphQL (`TaskSchema`), що містить Query і Mutation (TaskSchema.cs inherits Schema)
+* Резолвери використовують `IStorageSelectionService`, щоб вибрати правильне сховище (XML чи база даних) на основі `X-Storage-Type` 
+    (`.ResolveAsync(async context => ... var storageSelectionService = context.RequestServices.GetRequiredService<IStorageSelectionService>();`)
 * Через інтерфейс `ITaskRepository` звернення до сховища абстраговані від конкретної реалізації
 
 ### 5. Вибір сховища
@@ -34,12 +35,12 @@
 
 ### 6. Асинхронність
 
-* Використання асинхронних методів `ExecuteAsync`, `GetActiveTasksAsync` і т.д.
+* Використання асинхронних методів `ExecuteAsync`, `GetActiveTasksAsync` і т.д. (impr!!!)
 * Переваги: не блокується сервер, підтримка одночасних запитів
 
 ### 7. Серіалізація результату
 
-* Повернення результату у вигляді JSON, сформованого через `IGraphQLTextSerializer`
+* Повернення результату у вигляді JSON, сформованого через `IGraphQLTextSerializer` (`var json = _serializer.Serialize(result);`)
 * Обробка помилок у запитах і їх відправка у відповіді
 
 ### 8. Відсутність middleware
