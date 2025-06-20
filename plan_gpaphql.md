@@ -17,7 +17,7 @@
 ### 3. Обробка запиту в GraphQLController
 
 * Серіалізація і десеріалізація JSON через `IGraphQLTextSerializer` (використання Newtonsoft.Json)
-* Читання заголовка `X-Storage-Type` і передача його в контекст користувача (userContext)
+* Читання заголовка `X-Storage-Type` і передача його в контекст користувача (GraphQLController : userContext, every query, additional info)
 * Виклик `IDocumentExecuter.ExecuteAsync` — основний метод виконання запиту з передачею схеми, змінних, userContext, DI-сервісів
 
 ### 4. Схема та резолвери
