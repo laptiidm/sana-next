@@ -40,9 +40,9 @@
 
 | Компонент      | Технологія                           |
 | -------------- | ------------------------------------ |
-| UI (інтерфейс) | Svelte (компактний і швидкий)        |
-| Бекенд API     | ASP.NET Core (REST або GraphQL)      |
-| База даних     | SQL Server (Express) або PostgreSQL  |
+| UI (інтерфейс) | React                                |
+| Бекенд API     | ASP.NET Core (GraphQL)      |
+| База даних     | SQL Server (Express)                 |
 | Деплой         | AWS EC2 / Docker / Railway (для MVP) |
 
 ---
