@@ -41,7 +41,9 @@
 | Компонент      | Технологія                           |
 | -------------- | ------------------------------------ |
 | UI (інтерфейс) | React                                |
-| Бекенд API     | ASP.NET Core (GraphQL)      |
+| стан           | Redux                                |
+| side-effects   | rxjs                                 |
+| Бекенд API     | ASP.NET Core (GraphQL)               |
 | База даних     | SQL Server (Express)                 |
 | Деплой         | AWS EC2 / Docker / Railway (для MVP) |
 
