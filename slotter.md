@@ -140,4 +140,79 @@
 
 ---
 
+# DB
+
+```dbml
+// Project: Time-Slotter MVP
+// DBML syntax for dbdiagram.io
+
+Table Roles {
+  Id int [pk, increment]
+  Name nvarchar
+}
+
+Table Users {
+  Id int [pk, increment]
+  Username nvarchar
+  RoleId int [ref: > Roles.Id]
+  CreatedAt datetime
+}
+
+Table SlotSets {
+  Id int [pk, increment]
+  Name nvarchar
+  AdminId int [ref: > Users.Id]
+  CreatedAt datetime
+  IsActive bit
+}
+
+Table Slots {
+  Id int [pk, increment]
+  SlotSetId int [ref: > SlotSets.Id]
+  Position int
+  IsEnabled bit
+}
+
+Table SlotSegments {
+  Id int [pk, increment]
+  SlotId int [ref: > Slots.Id]
+  Index int
+  IsBooked bit
+  BookedBy int [ref: > Users.Id, null]
+  BookedAt datetime [note: 'Nullable until confirmed']
+}
+
+Table BookingStatuses {
+  Id int [pk, increment]
+  Name nvarchar // e.g. 'pending', 'approved', 'rejected'
+}
+
+Table BookingRequests {
+  Id int [pk, increment]
+  SlotSegmentId int [ref: > SlotSegments.Id]
+  UserId int [ref: > Users.Id]
+  Comment nvarchar
+  StatusId int [ref: > BookingStatuses.Id]
+  CreatedAt datetime
+  ConfirmedAt datetime [null]
+  ConfirmedBy int [ref: > Users.Id, null]
+}
+```
+
+---
+
+### ✅ Пояснення:
+
+* `Roles` — ролі (`admin`, `user`)
+* `Users` — користувачі з FK на `Roles`
+* `SlotSets` — набір слотів, прив’язаний до `AdminId`
+* `Slots` — 12 слотів у кожному слот-сеті
+* `SlotSegments` — по 3 в кожному слоті, бронюються після підтвердження
+* `BookingRequests` — заявки на бронювання від юзерів
+* `BookingStatuses` — таблиця зі статусами: `pending`, `approved`, `rejected`
+
+---
+
+
+
 
