@@ -213,6 +213,95 @@ Table BookingRequests {
 
 ---
 
+---
+
+
+## 🛠️ T-SQL скрипт
+
+```sql
+-- Встановити контекст бази
+USE TimeSlotter;
+GO
+
+-- Таблиця ролей
+CREATE TABLE Roles (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(50) NOT NULL
+);
+
+-- Таблиця користувачів
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Username NVARCHAR(100) NOT NULL,
+    RoleId INT NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+);
+
+-- Таблиця слот-сетів
+CREATE TABLE SlotSets (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100),
+    AdminId INT NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    IsActive BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (AdminId) REFERENCES Users(Id)
+);
+
+-- Таблиця слотів
+CREATE TABLE Slots (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    SlotSetId INT NOT NULL,
+    Position INT NOT NULL,
+    IsEnabled BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (SlotSetId) REFERENCES SlotSets(Id)
+);
+
+-- Таблиця слот-сегментів
+CREATE TABLE SlotSegments (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    SlotId INT NOT NULL,
+    [Index] INT NOT NULL,
+    IsBooked BIT NOT NULL DEFAULT 0,
+    BookedBy INT NULL,
+    BookedAt DATETIME NULL,
+    FOREIGN KEY (SlotId) REFERENCES Slots(Id),
+    FOREIGN KEY (BookedBy) REFERENCES Users(Id)
+);
+
+-- Таблиця статусів заявок
+CREATE TABLE BookingStatuses (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(50) NOT NULL
+);
+
+-- Таблиця заявок на бронювання
+CREATE TABLE BookingRequests (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    SlotSegmentId INT NOT NULL,
+    UserId INT NOT NULL,
+    Comment NVARCHAR(255) NULL,
+    StatusId INT NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    ConfirmedAt DATETIME NULL,
+    ConfirmedBy INT NULL,
+    FOREIGN KEY (SlotSegmentId) REFERENCES SlotSegments(Id),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (StatusId) REFERENCES BookingStatuses(Id),
+    FOREIGN KEY (ConfirmedBy) REFERENCES Users(Id)
+);
+
+-- Вставити початкові ролі
+INSERT INTO Roles (Name) VALUES ('admin'), ('user');
+
+-- Вставити статуси заявок
+INSERT INTO BookingStatuses (Name) VALUES ('pending'), ('approved'), ('rejected');
+```
+
+---
+
+
+
 
 
 
